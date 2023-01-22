@@ -23,7 +23,26 @@ provider "aws" {
 }  
 ```
 ## 2 Define global variables
+```t
+# AWS Region
+variable "region" {
+  type = string
+  default = "eu-west-1"
+  description = "Region of the VPC"
+}  
+
+variable "app_count" {
+  type = number
+  default = 1
+}
+```
 ## 3 Retrieve VPC data
+```t
+data "aws_availability_zones" "available_zones" {
+  state = "available"
+}
+
+
 ## 4 Create LB-SecurityGroup
 ## 5 Create LB-Resource
 ## 6 Create LB-Outputs

@@ -79,6 +79,35 @@ output "private_subnets_ids" {
 
 ```
 ## 4 Create LB-SecurityGroup
+```t
+# AWS EC2 Security Group Terraform module
+# Security Group for Load Balancer Web Application
+
+# AWS EC2 Security Group Terraform Module
+# Security Group for Load Balancer Web application
+
+module "lb_web_application_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.16.2"
+
+  name        = "lb-web-sg"
+  description = "Security Group with HTTP port open for everywhere"
+  vpc_id      = data.aws_vpc.account_vpc.id
+
+  # Ingress rules
+  ingress_rules = ["http-80-tcp"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+
+  # Egress rules
+  egress_rules = ["all-all"]
+
+  tags = {
+    Name = "lb-web-application"
+  }
+}
+
+
+```
 ## 5 Create LB-Resource
 ## 6 Create LB-Outputs
 ## 7 Create ECS Task Definition

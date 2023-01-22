@@ -38,11 +38,11 @@ variable "app_count" {
 ```
 ## 3 Retrieve VPC data
 ```t
-data "aws_availability_zones" "available_zones" {
+data "aws_availability_zones" "region_available_zones" {
   state = "available"
 }
 
-
+```
 ## 4 Create LB-SecurityGroup
 ## 5 Create LB-Resource
 ## 6 Create LB-Outputs

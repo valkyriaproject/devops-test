@@ -108,9 +108,9 @@ module "lb_web_application_sg" {
 
 
 ```
-## 5 Create LB-Resource
-## 6 Create LB-Outputs
-## 7 Create ECS Task Definition
-## 8 Creates ECS Cluster
+## 5 Create ECS Task Definition
+## 6 Creates ECS Cluster
+## 7 Create LB-Resource
+## 8 Create LB-Outputs
 ## 9 Terraform apply command 
 ## 10 Validate infrastructure

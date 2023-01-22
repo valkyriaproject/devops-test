@@ -64,7 +64,7 @@ data "aws_subnet_ids" "private_subnets" {
    }
 }
 
-output "account_vpc" {
+output "account_vpc_id" {
   value = data.aws_vpc.account_vpc.id
 }
 

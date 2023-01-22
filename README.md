@@ -42,6 +42,41 @@ data "aws_availability_zones" "region_available_zones" {
   state = "available"
 }
 
+data "aws_vpc" "account_vpc" {
+    tags = {
+       Name = "App-vpc"
+    }
+}
+
+data "aws_subnet_ids" "public_subnets" {
+   vpc_id = data.aws_vpc.account_vpc.id
+   
+   tags = {
+     "Tier" = "Public"
+   }
+}
+
+data "aws_subnet_ids" "private_subnets" {
+   vpc_id = data.aws_vpc.account_vpc.id
+   
+   tags = {
+     "Tier" = "Private"
+   }
+}
+
+output "account_vpc" {
+  value = data.aws_vpc.account_vpc.id
+}
+
+output "public_subnets_ids" {
+  value = data.aws_subnet_ids.public_subnets.ids
+}
+
+output "private_subnets_ids" {
+  value = data.aws_subnet_ids.private_subnets.ids
+}
+
+
 ```
 ## 4 Create LB-SecurityGroup
 ## 5 Create LB-Resource

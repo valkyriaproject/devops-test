@@ -132,7 +132,12 @@ resource "aws_ecs_task_definition" "webapp" {
 ```
 ## 6 Create ECS Cluster
 ```t
- name = "forest"
+ resource "aws_ecs_cluster" "webapp_ecs_cluster" {
+    name = "webapp-ecs-cluster"
+}
+
+resource "aws_ecs_service" "webapp_service" {
+  name = "forest"
   cluster = aws_ecs_cluster.webapp_ecs_cluster.id
   task_definition = aws_ecs_task_definition.webapp.arn
   desired_count = var.app_count
@@ -144,6 +149,7 @@ resource "aws_ecs_task_definition" "webapp" {
     subnets = data.aws_subnet_ids.public_subnets.ids
   }
 }
+
 ```
 ## 7 Deploy infraestructure
 ```t

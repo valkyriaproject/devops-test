@@ -78,16 +78,16 @@ output "private_subnets_ids" {
 
 
 ```
-## 4 Create LB-SecurityGroup
+## 4 Create ECS-SecurityGroup
 ```t
 # AWS EC2 Security Group Terraform module
-# Security Group for Load Balancer Web Application
+# Security Group for ECS Application
 
-module "lb_web_application_sg" {
+module "lb_ecs_application_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.16.2"
 
-  name        = "lb-web-sg"
+  name        = "ecs-web-sg"
   description = "Security Group with HTTP port open for everywhere"
   vpc_id      = data.aws_vpc.account_vpc.id
 
@@ -104,9 +104,53 @@ module "lb_web_application_sg" {
 }
 
 ```
-## 5 Create LB-Resource
-## 6 Create LB-Outputs
-## 7 Create ECS Task Definition
-## 8 Creates ECS Cluster
-## 9 Terraform apply command 
-## 10 Validate infrastructure
+## 5 Create ECS Task Definition
+```t
+resource "aws_ecs_task_definition" "webapp" {
+  family                   = "webserver"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE", "EC2"]
+  cpu                      = 1024
+  memory                   = 2048
+
+  container_definitions = <<DEFINITION
+  [
+    {
+        "name": "webserver",
+        "image": "nginx:alpine",
+        "cpu": 1024,
+        "memory": 2048,
+        "portMappings" : [
+            {
+                "containerPort": 80,
+                "hostPort": 80
+            }
+        ]
+    }
+  ]
+  DEFINITION
+```
+## 6 Create ECS Cluster
+```t
+ name = "forest"
+  cluster = aws_ecs_cluster.webapp_ecs_cluster.id
+  task_definition = aws_ecs_task_definition.webapp.arn
+  desired_count = var.app_count
+  launch_type = "FARGATE"
+
+  network_configuration {
+    assign_public_ip = true
+    security_groups = [ module.lb_ecs_application_sg.security_group_id ]
+    subnets = data.aws_subnet_ids.public_subnets.ids
+  }
+}
+```
+## 7 Deploy infraestructure
+```t
+terraform apply -auto-approve
+```
+## 8 Go to ECS task ID in AWS Console -> ECS and copy Public IP Address
+## 9 Clean Resources
+```t
+terraform destroy -auto-approve
+```

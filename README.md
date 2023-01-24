@@ -83,9 +83,6 @@ output "private_subnets_ids" {
 # AWS EC2 Security Group Terraform module
 # Security Group for Load Balancer Web Application
 
-# AWS EC2 Security Group Terraform Module
-# Security Group for Load Balancer Web application
-
 module "lb_web_application_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.16.2"
@@ -106,11 +103,10 @@ module "lb_web_application_sg" {
   }
 }
 
-
 ```
-## 5 Create ECS Task Definition
-## 6 Creates ECS Cluster
-## 7 Create LB-Resource
-## 8 Create LB-Outputs
+## 5 Create LB-Resource
+## 6 Create LB-Outputs
+## 7 Create ECS Task Definition
+## 8 Creates ECS Cluster
 ## 9 Terraform apply command 
 ## 10 Validate infrastructure

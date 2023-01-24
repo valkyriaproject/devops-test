@@ -149,8 +149,9 @@ resource "aws_ecs_task_definition" "webapp" {
 ```t
 terraform apply -auto-approve
 ```
-## 8 Go to ECS task ID in AWS Console -> ECS and copy Public IP Address
-## 9 Clean Resources
+## 8 Go to AWS Console -> ECS -> Task definitions -> Task ID and copy Public IP Address
+## 9 Using a web browser, paste the public IP address and verify that the default NGinx page appears
+## 10 Clean Resources
 ```t
 terraform destroy -auto-approve
 ```

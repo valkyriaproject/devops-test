@@ -113,7 +113,7 @@ module "lb_ecs_application_sg" {
   version = "4.16.2"
 
   name        = "ecs-web-sg"
-  description = "Security Group with TCP port 3000 open from Load Balancer SG"
+  description = "Security Group with TCP port 80 open from Load Balancer SG"
   vpc_id      = data.aws_vpc.account_vpc.id
 
   # Ingress rules

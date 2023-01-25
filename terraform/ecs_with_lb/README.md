@@ -75,10 +75,28 @@ output "public_subnets_ids" {
 output "private_subnets_ids" {
   value = data.aws_subnet_ids.private_subnets.ids
 }
-
-
 ```
-## 4 Create LB-SecurityGroup
+## 4 Retrieve Route53 public zone data
+```t
+# Get DNS information from AWS Route53
+data "aws_route53_zone" "public_zone" {
+  provider = "aws.networking"
+  name = "laboratoriosonline.com"
+}
+
+# Output DNS Zone ID
+output "public_zone_id" {
+  description = "Value of zone id"
+  value = data.aws_route53_zone.public_zone.zone_id
+}
+
+# Output DNS Zone Name
+output "public_zone_name" {
+  description = "Value of zone name"
+  value = data.aws_route53_zone.public_zone.name
+}
+```
+## 5 Create LB-SecurityGroup
 ```t
 # AWS EC2 Security Group Terraform Module
 # Security Group for Load Balancer Web application
@@ -103,7 +121,7 @@ module "lb_web_application_sg" {
   }
 }
 ```
-## 5 Create ECS-SecurityGroup
+## 6 Create ECS-SecurityGroup
 ```t
 # AWS EC2 Security Group Terraform module
 # Security Group for ECS Application
@@ -135,7 +153,7 @@ module "lb_ecs_application_sg" {
   }
 }
 ```
-## 6 Create LB
+## 7 Create LB
 ```t
 # Create external Load Balancer for our app
 
@@ -163,7 +181,7 @@ resource "aws_lb_listener" "webapp" {
       type             = "forward"
     }
 ```
-## 7 Create LB outputs
+## 8 Create LB outputs
 ```t
 # Terraform AWS Load Balancer Outputs
 
@@ -182,7 +200,7 @@ output "elb_dns_name" {
   value = aws_lb.webapp.dns_name
 }
 ```
-## 8 Create ECS Task Definition
+## 9 Create ECS Task Definition
 ```t
 # Create ECS task for deploy container
 
@@ -210,7 +228,7 @@ resource "aws_ecs_task_definition" "webapp" {
   ]
   DEFINITION
 ```
-## 6 Create ECS Cluster
+## 10 Create ECS Cluster
 ```t
 resource "aws_ecs_cluster" "webapp_ecs_cluster" {
     name = "webapp-ecs-cluster"
@@ -238,7 +256,7 @@ resource "aws_ecs_service" "webapp_service" {
 }
 
 ```
-## 7 Define Route53 records
+## 11 Define Route53 records
 ```t
 # DNS Registration
 resource "aws_route53_record" "www" {
@@ -252,14 +270,14 @@ resource "aws_route53_record" "www" {
   }
 }
 ```
-## 8 Deploy infraestructure
+## 12 Deploy infraestructure
 ```t
 terraform apply -auto-approve
 ```
-## 9 Using a web browser, paste the public IP address and verify that the default NGinx page appears
+## 13 Using a web browser, paste the public IP address and verify that the default NGinx page appears
 <img width="536" alt="image" src="https://user-images.githubusercontent.com/123261295/214674264-4b9df0f1-8509-47d4-be3b-f859e324f024.png">
 
-## 10 Clean Resources
+## 14 Clean Resources
 ```t
 terraform destroy -auto-approve
 ```

@@ -135,7 +135,54 @@ module "lb_ecs_application_sg" {
   }
 }
 ```
-## 6 Create ECS Task Definition
+## 6 Create LB
+```t
+# Create external Load Balancer for our app
+
+resource "aws_lb" "webapp" {
+    name = "webapp-lb"
+    subnets = data.aws_subnet_ids.public_subnets.ids
+    security_groups = [ module.lb_web_application_sg.security_group_id]
+}
+
+resource "aws_lb_target_group" "webapp" {
+    name     = "webapp-target-group"
+    port     = 80
+    protocol = "HTTP"
+    vpc_id   = data.aws_vpc.account_vpc.id
+    target_type = "ip"
+}
+
+resource "aws_lb_listener" "webapp" {
+    load_balancer_arn = aws_lb.webapp.id
+    port              = "80"
+    protocol          = "HTTP"
+
+    default_action {
+      target_group_arn = aws_lb_target_group.webapp.id
+      type             = "forward"
+    }
+```
+## 7 Create LB outputs
+```t
+# Terraform AWS Load Balancer Outputs
+
+output "elb_id" {
+  description = "ID of the ELB"
+  value       = aws_lb.webapp.id
+}
+
+output "elb_name" {
+  description = "Name of the ELB"
+  value       = aws_lb.webapp.name
+}
+
+output "elb_dns_name" {
+  description = "DNS Name of the ELB"
+  value = aws_lb.webapp.dns_name
+}
+```
+## 8 Create ECS Task Definition
 ```t
 # Create ECS task for deploy container
 
@@ -190,13 +237,25 @@ resource "aws_ecs_service" "webapp_service" {
   depends_on = [aws_lb_listener.webapp]
 }
 
-
 ```
-## 7 Deploy infraestructure
+## 7 Define Route53 records
+```t
+# DNS Registration
+resource "aws_route53_record" "www" {
+  name    = "apps"
+  type    = "A"
+  zone_id = data.aws_route53_zone.public_zone.zone_id
+  alias {
+    name                   = aws_lb.webapp.dns_name
+    zone_id                = aws_lb.webapp.zone_id
+    evaluate_target_health = true
+  }
+}
+```
+## 8 Deploy infraestructure
 ```t
 terraform apply -auto-approve
 ```
-## 8 Go to AWS Console -> ECS -> Task definitions -> Task ID and copy Public IP Address
 ## 9 Using a web browser, paste the public IP address and verify that the default NGinx page appears
 <img width="536" alt="image" src="https://user-images.githubusercontent.com/123261295/214674264-4b9df0f1-8509-47d4-be3b-f859e324f024.png">
 

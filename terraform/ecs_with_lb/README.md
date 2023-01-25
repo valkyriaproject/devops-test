@@ -1,4 +1,4 @@
-# Create Service in AWS ECS
+# Create Service in AWS ECS with external Load Balancer and Route 53 for DNS record
 ## 1 Define Provider block
 ```t
 terraform {

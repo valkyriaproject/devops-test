@@ -78,16 +78,16 @@ output "private_subnets_ids" {
 
 
 ```
-## 4 Create ECS-SecurityGroup
+## 4 Create LB-SecurityGroup
 ```t
-# AWS EC2 Security Group Terraform module
-# Security Group for ECS Application
+# AWS EC2 Security Group Terraform Module
+# Security Group for Load Balancer Web application
 
-module "lb_ecs_application_sg" {
+module "lb_web_application_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.16.2"
 
-  name        = "ecs-web-sg"
+  name        = "lb-web-sg"
   description = "Security Group with HTTP port open for everywhere"
   vpc_id      = data.aws_vpc.account_vpc.id
 
@@ -102,10 +102,43 @@ module "lb_ecs_application_sg" {
     Name = "lb-web-application"
   }
 }
-
 ```
-## 5 Create ECS Task Definition
+## 5 Create ECS-SecurityGroup
 ```t
+# AWS EC2 Security Group Terraform module
+# Security Group for ECS Application
+
+module "lb_ecs_application_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.16.2"
+
+  name        = "ecs-web-sg"
+  description = "Security Group with TCP port 3000 open from Load Balancer SG"
+  vpc_id      = data.aws_vpc.account_vpc.id
+
+  # Ingress rules
+  ingress_with_source_security_group_id = [
+    {
+      from_port = 80
+      to_port   = 80
+      protocol  = "tcp"
+      description = "HTTP-from-LB-Security Group"
+      source_security_group_id = module.lb_web_application_sg.security_group_id
+    },
+  ]
+
+  # Egress rules
+  egress_rules = ["all-all"]
+
+  tags = {
+    Name = "ecs-web-application"
+  }
+}
+```
+## 6 Create ECS Task Definition
+```t
+# Create ECS task for deploy container
+
 resource "aws_ecs_task_definition" "webapp" {
   family                   = "webserver"
   network_mode             = "awsvpc"
@@ -132,7 +165,7 @@ resource "aws_ecs_task_definition" "webapp" {
 ```
 ## 6 Create ECS Cluster
 ```t
- resource "aws_ecs_cluster" "webapp_ecs_cluster" {
+resource "aws_ecs_cluster" "webapp_ecs_cluster" {
     name = "webapp-ecs-cluster"
 }
 
@@ -144,11 +177,19 @@ resource "aws_ecs_service" "webapp_service" {
   launch_type = "FARGATE"
 
   network_configuration {
-    assign_public_ip = true
     security_groups = [ module.lb_ecs_application_sg.security_group_id ]
-    subnets = data.aws_subnet_ids.public_subnets.ids
+    subnets = data.aws_subnet_ids.private_subnets.ids
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.webapp.id
+    container_name = "webserver"
+    container_port = 80
+  }
+
+  depends_on = [aws_lb_listener.webapp]
 }
+
 
 ```
 ## 7 Deploy infraestructure
